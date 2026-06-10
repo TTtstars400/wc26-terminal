@@ -9,6 +9,7 @@ import plotly.graph_objects as go
 import plotly.express as px
 from datetime import datetime, timezone
 import time
+import os
 
 import database as db
 import valuation as val
@@ -1323,6 +1324,34 @@ elif page == "🔧 Admin Panel":
     st.markdown('<div class="page-eyebrow">System Control · API · Manual Match Entry</div>',
                 unsafe_allow_html=True)
 
+    # ── Password protection ───────────────────────────────────────────────────
+    ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "wc26admin")
+
+    if "admin_unlocked" not in st.session_state:
+        st.session_state.admin_unlocked = False
+
+    if not st.session_state.admin_unlocked:
+        st.markdown(
+            '<div class="wc-card" style="max-width:400px;margin:60px auto;text-align:center;">'
+            '<div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.4rem;'
+            'letter-spacing:3px;color:#C9A84C;margin-bottom:16px;">🔒 ADMIN ACCESS</div>'
+            '<div style="font-size:0.82rem;color:#5A6080;margin-bottom:16px;">'
+            'This panel is restricted to the tournament administrator only.</div>'
+            '</div>',
+            unsafe_allow_html=True
+        )
+        pwd = st.text_input("Enter admin password", type="password", key="admin_pwd")
+        if st.button("Unlock Admin Panel"):
+            if pwd == ADMIN_PASSWORD:
+                st.session_state.admin_unlocked = True
+                st.rerun()
+            else:
+                st.markdown(
+                    '<div class="error-box">❌ Incorrect password.</div>',
+                    unsafe_allow_html=True
+                )
+        st.stop()
+
     st.markdown("## API Configuration")
     bbs_ready = config.BBS_API_KEY and config.BBS_API_KEY != "YOUR_BBS_KEY_HERE"
     if bbs_ready:
@@ -1518,7 +1547,7 @@ elif page == "🔧 Admin Panel":
         if st.button(f"🔒 Lock {lock_t}"):
             conn = db.get_conn()
             conn.execute("INSERT OR REPLACE INTO trading_locks (team_code,match_id,locked_at) VALUES (?,0,?)",
-                         (lock_t, datetime.utcnow().isoformat()))
+                         (lock_t, datetime.now(timezone.utc).isoformat()))
             conn.commit(); conn.close()
             st.rerun()
     with lc2:
