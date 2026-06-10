@@ -126,7 +126,7 @@ def upsert_match(api_fixture_id, home_team, home_code, away_team, away_code,
         status=excluded.status, home_score=excluded.home_score,
         away_score=excluded.away_score, last_checked=excluded.last_checked""",
         (api_fixture_id,home_team,home_code,away_team,away_code,
-         kickoff_utc,stage,status,home_score,away_score,datetime.now(timezone.utc).isoformat()
+         kickoff_utc,stage,status,home_score,away_score,datetime.now(timezone.utc).isoformat()))
     conn.commit(); conn.close()
 
 def get_all_matches(limit=104):
@@ -197,7 +197,7 @@ def log_match_event(match_id, player_id, event_type, delta_pct, description=""):
     conn = get_conn()
     conn.execute("""INSERT INTO match_events (match_id,player_id,event_type,delta_pct,description,ts)
         VALUES (?,?,?,?,?,?)""",
-        (match_id, player_id, event_type, delta_pct, description, datetime.now(timezone.utc).isoformat()
+        (match_id, player_id, event_type, delta_pct, description, datetime.now(timezone.utc).isoformat()))
     conn.commit(); conn.close()
 
 def get_price_history(player_id, limit=300):
