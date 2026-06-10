@@ -88,7 +88,7 @@ def init_db():
 # ── Lock helpers ──────────────────────────────────────────────────────────────
 def lock_teams(match_id, home_code, away_code):
     conn = get_conn()
-    now = datetime.now(timezone.utc).isoformat())
+    now = datetime.now(timezone.utc).isoformat()
     for code in [home_code, away_code]:
         conn.execute("INSERT OR REPLACE INTO trading_locks (team_code,match_id,locked_at) VALUES (?,?,?)",
                      (code, match_id, now))
