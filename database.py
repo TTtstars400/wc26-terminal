@@ -126,7 +126,7 @@ def upsert_match(api_fixture_id, home_team, home_code, away_team, away_code,
         status=excluded.status, home_score=excluded.home_score,
         away_score=excluded.away_score, last_checked=excluded.last_checked""",
         (api_fixture_id,home_team,home_code,away_team,away_code,
-         kickoff_utc,stage,status,home_score,away_score,datetime.now(timezone.utc).isoformat())))
+         kickoff_utc,stage,status,home_score,away_score,datetime.now(timezone.utc).isoformat()
     conn.commit(); conn.close()
 
 def get_all_matches(limit=104):
@@ -181,7 +181,7 @@ def get_players_by_team(team_code):
 
 def update_player_price(player_id, new_price, reason="", rating=None):
     conn = get_conn()
-    now = datetime.now(timezone.utc).isoformat())
+    now = datetime.now(timezone.utc).isoformat()
     if rating is not None:
         conn.execute("""UPDATE players SET prev_price=live_price, live_price=?,
             last_rating=?, last_update=? WHERE id=?""",
@@ -197,7 +197,7 @@ def log_match_event(match_id, player_id, event_type, delta_pct, description=""):
     conn = get_conn()
     conn.execute("""INSERT INTO match_events (match_id,player_id,event_type,delta_pct,description,ts)
         VALUES (?,?,?,?,?,?)""",
-        (match_id, player_id, event_type, delta_pct, description, datetime.now(timezone.utc).isoformat())))
+        (match_id, player_id, event_type, delta_pct, description, datetime.now(timezone.utc).isoformat()
     conn.commit(); conn.close()
 
 def get_price_history(player_id, limit=300):
@@ -221,7 +221,7 @@ def get_or_create_user(username):
     conn = get_conn()
     row = conn.execute("SELECT * FROM users WHERE username=?", (username,)).fetchone()
     if not row:
-        now = datetime.now(timezone.utc).isoformat())
+        now = datetime.now(timezone.utc).isoformat()
         conn.execute("INSERT INTO users (username,cash,created_at) VALUES (?,?,?)",
                      (username, 700_000_000.0, now))
         conn.commit()
@@ -250,7 +250,7 @@ def get_holdings(username):
 def execute_trade(username, player_id, trade_type, shares, exec_price):
     conn = get_conn()
     c = conn.cursor()
-    now = datetime.now(timezone.utc).isoformat())
+    now = datetime.now(timezone.utc).isoformat()
     total_value = shares * exec_price
     try:
         locked, lock_reason = is_player_locked(player_id)
