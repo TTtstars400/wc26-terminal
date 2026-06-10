@@ -848,7 +848,7 @@ elif page == "📅 Match Schedule":
     if not api_ready:
         st.markdown(
             '<div class="info-box">⚪ No API key configured yet. The match schedule will load automatically '
-            'once you add your free football-data.org API key to config.py. '
+            'once you add your free the data provider API key to config.py. '
             'The tournament begins 11 June 2026.</div>',
             unsafe_allow_html=True
         )
@@ -923,7 +923,7 @@ elif page == "📅 Match Schedule":
             '<div style="color:#5A6080;margin-top:8px;font-size:0.85rem">'
             'Mexico vs South Africa · Estadio Azteca · Mexico City</div>'
             '<div style="color:#3A4060;margin-top:16px;font-size:0.78rem">'
-            'Add your football-data.org API key to config.py to load the full schedule.</div>'
+            'The full schedule will load automatically once the tournament begins.</div>'
             '</div>',
             unsafe_allow_html=True
         )
@@ -940,7 +940,7 @@ elif page == "📅 Match Schedule":
         '<div><div style="font-size:0.68rem;color:#C9A84C;text-transform:uppercase;'
         'letter-spacing:0.12em;margin-bottom:6px;">2 · Full Time</div>'
         '<div style="font-size:0.82rem;color:#8090B0">App fetches complete match stats automatically '
-        'from football-data.org. Goals, cards, result, clean sheets — all applied at once.</div></div>'
+        'from the data provider. Goals, cards, result, clean sheets — all applied at once.</div></div>'
         '<div><div style="font-size:0.68rem;color:#2ECC71;text-transform:uppercase;'
         'letter-spacing:0.12em;margin-bottom:6px;">3 · Prices Update</div>'
         '<div style="font-size:0.82rem;color:#8090B0">Valuation engine applies all rules. '
@@ -1120,8 +1120,10 @@ elif page == "⚡ Trade Desk":
         is_locked, lock_reason = db.is_player_locked(sel_id)
 
         trade_type = st.radio("Order Type", ["BUY","SELL"], horizontal=True)
-        shares_qty = st.number_input("Quantity (shares)", min_value=0.01, step=100.0, value=100.0)
+        shares_qty = st.number_input("Quantity (shares)", min_value=0.01, step=100.0, value=100.0, key="shares_qty")
 
+        # Always refresh user so cash reflects latest trades
+        user = db.get_or_create_user(username)
         exec_price = player["live_price"]
         total_cost = shares_qty * exec_price
         cash_after = user["cash"] - total_cost if trade_type=="BUY" else user["cash"]+total_cost
@@ -1598,3 +1600,4 @@ elif page == "🔧 Admin Panel":
             conn.commit(); conn.close()
             st.success("✅ Market reset to IPO prices")
             st.rerun()
+
