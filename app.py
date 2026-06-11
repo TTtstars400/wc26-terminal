@@ -241,7 +241,15 @@ hr { border: none; border-top: 1px solid #1C2340; margin: 16px 0; }
 
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
-def fmil(v):   return f"${v/1_000_000:,.1f}M"
+def fmil(v):
+    """Smart formatter — shows full number with commas, no rounding"""
+    if v >= 1_000_000:
+        return f"${v:,.0f}"
+    elif v >= 1_000:
+        return f"${v:,.2f}"
+    else:
+        return f"${v:,.2f}"
+
 def fprice(v): return f"${v:,.2f}"
 def fpct(v):   return f"{v:+.2f}%"
 
