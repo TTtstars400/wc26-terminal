@@ -222,14 +222,14 @@ def get_or_create_user(username: str, password: str = "") -> dict:
         if rows.data:
             return rows.data[0]
         new_user = {
-            "username": username, "cash": 700_000_000.0,
+            "username": username, "cash": 50_000.0,
             "password": password, "created_at": now_iso()
         }
         sb.table("users").insert(new_user).execute()
         return new_user
     except Exception as e:
         print(f"[DB] User error: {e}")
-        return {"username": username, "cash": 700_000_000.0, "password": password}
+        return {"username": username, "cash": 50_000.0, "password": password}
 
 def verify_user_password(username: str, password: str) -> tuple:
     sb = get_client()
@@ -237,7 +237,7 @@ def verify_user_password(username: str, password: str) -> tuple:
         rows = sb.table("users").select("*").eq("username", username).execute()
         if not rows.data:
             sb.table("users").insert({
-                "username": username, "cash": 700_000_000.0,
+                "username": username, "cash": 50_000.0,
                 "password": password, "created_at": now_iso()
             }).execute()
             return True, "new_user"
@@ -353,7 +353,7 @@ def get_leaderboard() -> list:
                 if p:
                     hval += h["shares"] * p["live_price"]
             total = u["cash"] + hval
-            roi   = ((total - 700_000_000) / 700_000_000) * 100
+            roi   = ((total - 50_000) / 50_000) * 100
             result.append({
                 "username": u["username"], "cash": u["cash"],
                 "holdings_value": hval, "total_value": total, "roi_pct": roi
