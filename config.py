@@ -7,10 +7,10 @@ import os
 # Free tier: 1,000 requests/day — no credit card
 # Get your key at: https://bigballsdata.com/signup
 # Replace the value below with your key, OR set env var BBS_API_KEY
-BBS_API_KEY = os.environ.get("BBS_API_KEY", "YOUR_BBS_KEY_HERE")
+BBS_API_KEY = os.environ.get("BBS_API_KEY", "")
 
 # ── football-data.org (backup, for schedule only if needed) ───────────────────
-FOOTBALL_DATA_API_KEY = os.environ.get("FOOTBALL_DATA_API_KEY", "53566dc749cc466a91d0d2fceef2542c")
+FOOTBALL_DATA_API_KEY = os.environ.get("FOOTBALL_DATA_API_KEY", "")
 FOOTBALL_DATA_BASE    = "https://api.football-data.org/v4"
 WORLD_CUP_ID          = int(os.environ.get("WORLD_CUP_ID", "2000"))
 
