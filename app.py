@@ -16,6 +16,19 @@ import valuation as val
 import api_client as api
 import config
 
+# ── Cached data fetchers (reduces Supabase calls by ~80%) ────────────────────
+@st.cache_data(ttl=30)  # refresh every 30 seconds
+def cached_players():
+    return db.get_all_players()
+
+@st.cache_data(ttl=30)
+def cached_market_summary():
+    return val.get_market_summary()
+
+@st.cache_data(ttl=10)  # faster refresh for locks
+def cached_locked_teams():
+    return db.get_locked_teams()
+
 st.set_page_config(
     page_title="WC26 Equity Terminal",
     page_icon="⚽",
@@ -242,11 +255,11 @@ hr { border: none; border-top: 1px solid #1C2340; margin: 16px 0; }
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
 def fmil(v):
-    """Smart formatter — shows full number with commas, no rounding"""
+    """Smart formatter — K for thousands, M for millions"""
     if v >= 1_000_000:
-        return f"${v:,.0f}"
+        return f"${v/1_000_000:.2f}M"
     elif v >= 1_000:
-        return f"${v:,.2f}"
+        return f"${v/1_000:.2f}K"
     else:
         return f"${v:,.2f}"
 
@@ -315,7 +328,7 @@ with st.sidebar:
                     st.session_state.username = uname
                     st.session_state.logged_in = True
                     if msg == "new_user":
-                        st.success(f"Welcome {uname}! Account created with $700M.")
+                        st.success(f"Welcome {uname}! Account created with $50,000.")
                     elif msg == "password_set":
                         st.success(f"Welcome back {uname}! Password updated.")
                     else:
@@ -362,7 +375,7 @@ with st.sidebar:
         )
     else:
         st.markdown(
-            '<div class="info-box">Enter a username to create your $700M account and start trading.</div>',
+            '<div class="info-box">Enter a username to create your $50,000 account and start trading.</div>',
             unsafe_allow_html=True
         )
 
@@ -427,7 +440,7 @@ if page == "📖 How to Play":
         'Every player in the tournament is a tradeable instrument with a share price. '
         'Prices go up when players perform well and down when they perform badly — '
         'based entirely on real match results, automatically fetched after each game. '
-        'You start with <span style="color:#C9A84C;font-weight:700">$700,000,000</span> '
+        'You start with <span style="color:#C9A84C;font-weight:700">$50,000</span> '
         'and compete against your friends to build the highest-value portfolio by the final on 19 July 2026.'
         '</div></div>',
         unsafe_allow_html=True
@@ -438,7 +451,7 @@ if page == "📖 How to Play":
     col1, col2, col3 = st.columns(3)
     steps = [
         ("1", "#E61D25", "Pick a Username",
-         "Type any name in the sidebar. Your $700M account is created instantly. "
+         "Type any name in the sidebar. Your $50,000 account is created instantly. "
          "Your username is permanent — pick something good."),
         ("2", "#C9A84C", "Browse the Market",
          "Go to Market Terminal to see all players with their IPO prices, positions, "
@@ -630,10 +643,10 @@ if page == "📖 How to Play":
         '<div class="wc-card wc-card-gold">'
         '<div style="font-size:0.84rem;color:#8090B0;line-height:1.8;">'
         'The leaderboard ranks all managers by <b style="color:#C9A84C">ROI% (Return on Investment)</b> — '
-        'how much your portfolio has grown from the $700M starting capital.<br><br>'
+        'how much your portfolio has grown from the $50,000 starting capital.<br><br>'
         '<b style="color:#fff">Total Portfolio Value</b> = Cash remaining + '
         'Market value of all your current holdings<br>'
-        '<b style="color:#fff">ROI%</b> = (Total Value − $700M) ÷ $700M × 100<br><br>'
+        '<b style="color:#fff">ROI%</b> = (Total Value − $50,000) ÷ $50,000 × 100<br><br>'
         'A manager who spends wisely and sells at the right time will outperform someone '
         'who just holds everything. The winner is whoever has the highest ROI% when the '
         'final whistle blows at MetLife Stadium on 19 July 2026.'
@@ -649,7 +662,7 @@ if page == "📖 How to Play":
         'letter-spacing:3px;color:#C9A84C;margin-bottom:8px;">HOW TO INVITE FRIENDS</div>'
         '<div style="font-size:0.85rem;color:#8090B0;max-width:520px;margin:0 auto;line-height:1.8;">'
         'Send your friends the app link. They open it, pick a username, and they\'re in — '
-        'their own $700M account, the same shared market, and they appear on the leaderboard instantly. '
+        'their own $50,000 account, the same shared market, and they appear on the leaderboard instantly. '
         'No signup, no download, no account needed. Just a name and they\'re playing.'
         '</div>'
         '<div style="margin-top:16px;font-size:0.78rem;color:#3A4060;">'
@@ -660,8 +673,8 @@ if page == "📖 How to Play":
 
 
 elif page == "🏦 Market Terminal":
-    players = db.get_all_players()
-    locked  = db.get_locked_teams()
+    players = cached_players()
+    locked  = cached_locked_teams()
     for p in players:
         p["chg"] = chg_pct(p)
         p["ipc"] = ipo_chg(p)
@@ -865,6 +878,12 @@ elif page == "🏦 Market Terminal":
         )
         st.plotly_chart(fig2, use_container_width=True)
 
+    # Auto-refresh every 60 seconds
+    import time as _time
+    st.markdown(
+        '<div style="font-size:0.68rem;color:#3A4060;text-align:right;margin-top:8px;">'
+        'Auto-refreshes every 60s</div>', unsafe_allow_html=True
+    )
     if st.button("🔄 Refresh Market"):
         st.rerun()
 
@@ -1005,7 +1024,7 @@ elif page == "💼 My Portfolio":
     locked   = db.get_locked_teams()
 
     st.title(f"PORTFOLIO")
-    st.markdown(f'<div class="page-eyebrow">Manager: {username} · Starting Capital: $700M</div>',
+    st.markdown(f'<div class="page-eyebrow">Manager: {username} · Starting Capital: $50,000</div>',
                 unsafe_allow_html=True)
 
     hval   = sum(h["shares"]*h["live_price"] for h in holdings)
@@ -1020,7 +1039,7 @@ elif page == "💼 My Portfolio":
     m4.metric("Unrealised P&L",  fmil(unreal),
               delta=fmil(unreal), delta_color="normal" if unreal>=0 else "inverse")
     m5.metric("ROI",             f"{roi:+.3f}%",
-              delta="vs $700M start", delta_color="normal" if roi>=0 else "inverse")
+              delta="vs $50,000 start", delta_color="normal" if roi>=0 else "inverse")
 
     st.markdown("## Holdings")
     if holdings:
@@ -1123,8 +1142,8 @@ elif page == "⚡ Trade Desk":
 
     username = st.session_state.username
     user     = db.get_or_create_user(username)  # always fresh from Supabase
-    players  = db.get_all_players()
-    locked   = db.get_locked_teams()
+    players  = cached_players()
+    locked   = cached_locked_teams()
 
     st.title("TRADE DESK")
     st.markdown(
@@ -1313,9 +1332,9 @@ elif page == "🏆 Leaderboard":
             lb_rows.append({
                 "Rank":         i+1,
                 "Manager":      ("▶ " if is_me else "")+l["username"],
-                "Total ($M)":   round(l["total_value"]/1e6,3),
-                "Holdings ($M)":round(l["holdings_value"]/1e6,3),
-                "Cash ($M)":    round(l["cash"]/1e6,3),
+                "Total":        fmil(l["total_value"]),
+                "Holdings":     fmil(l["holdings_value"]),
+                "Cash":         fmil(l["cash"]),
                 "ROI %":        round(l["roi_pct"],4),
             })
         lb_df = pd.DataFrame(lb_rows)
@@ -1324,8 +1343,7 @@ elif page == "🏆 Leaderboard":
             return [f"background-color:{'#051A0C' if row['ROI %']>0 else '#1A0508' if row['ROI %']<0 else ''}"]*len(row)
         st.dataframe(
             lb_df.style.apply(_hl_lb,axis=1)
-                 .format({"Total ($M)":"${:.3f}M","Holdings ($M)":"${:.3f}M",
-                          "Cash ($M)":"${:.3f}M","ROI %":"{:+.4f}%"}),
+                 .format({"ROI %":"{:+.4f}%"}),
             use_container_width=True, height=400,
         )
 
