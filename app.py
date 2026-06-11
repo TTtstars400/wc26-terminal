@@ -229,12 +229,17 @@ hr { border: none; border-top: 1px solid #1C2340; margin: 16px 0; }
 .r-poor { background:#1A0F00;color:#FF8C00;border:1px solid #FF8C0044; }
 .r-bad  { background:#1A0808;color:#E61D25;border:1px solid #E61D2544; }
 
-/* How to Play readable text */
+/* Readable text throughout */
 .htp-body { font-size:0.95rem !important; color:#D0D8E8 !important; line-height:1.9 !important; }
 .htp-title { font-size:1.1rem !important; color:#ffffff !important; font-weight:700 !important; }
-.htp-sub { font-size:0.82rem !important; color:#8090B0 !important; }
-.wc-card p, .wc-card div, .wc-card span { font-size:0.92rem !important; }
+.htp-sub { font-size:0.88rem !important; color:#9090A0 !important; }
+.wc-card p, .wc-card div { font-size:0.92rem !important; }
 .wc-card ul li { font-size:0.92rem !important; color:#C8D0E0 !important; line-height:2.1 !important; }
+
+/* Global small text improvements */
+.page-eyebrow { font-size:0.78rem !important; color:#6070A0 !important; letter-spacing:0.12em; }
+.wc-card { font-size:0.92rem !important; }
+.match-card { font-size:0.9rem !important; }
 
 .flag { font-size:1.1rem; }
 .success-box { background:#061A0C;border-left:3px solid #2ECC71;padding:10px 14px;
@@ -526,7 +531,7 @@ if page == "📖 How to Play":
         rows_html = "".join(
             f'<div style="display:flex;justify-content:space-between;padding:4px 0;'
             f'border-bottom:1px solid #1C2340;">'
-            f'<span style="font-size:0.78rem;color:#8090B0">{rule}</span>'
+            f'<span style="font-size:0.88rem;color:#B0BCCF">{rule}</span>'
             f'<span style="font-family:\'Nunito\',sans-serif;font-size:0.78rem;font-weight:700;'
             f'color:{"#2ECC71" if "+" in val else "#E61D25"}">{val}</span></div>'
             for rule, val in rules
@@ -605,7 +610,7 @@ if page == "📖 How to Play":
             f'<div style="flex:1;background:#0E122A;border:1px solid #1C2340;border-left:3px solid {colour};'
             f'border-radius:0 6px 6px 0;padding:10px 14px;">'
             f'<div style="font-weight:600;color:#fff;font-size:0.88rem">{title}</div>'
-            f'<div style="font-size:0.78rem;color:#5A6080;margin-top:3px">{desc}</div>'
+            f'<div style="font-size:0.88rem;color:#A0AABB;margin-top:5px;line-height:1.6">{desc}</div>'
             f'</div></div>',
             unsafe_allow_html=True
         )
@@ -650,7 +655,7 @@ if page == "📖 How to Play":
     st.markdown("## The Leaderboard")
     st.markdown(
         '<div class="wc-card wc-card-gold">'
-        '<div style="font-size:0.84rem;color:#8090B0;line-height:1.8;">'
+        '<div style="font-size:0.92rem;color:#B0BCCF;line-height:1.9;">'
         'The leaderboard ranks all managers by <b style="color:#C9A84C">ROI% (Return on Investment)</b> '
         'how much your portfolio has grown from the $50,000 starting capital.<br><br>'
         '<b style="color:#fff">Total Portfolio Value</b> = Cash remaining + '
@@ -669,7 +674,7 @@ if page == "📖 How to Play":
         '<div class="wc-card" style="text-align:center;padding:28px;">'
         '<div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.4rem;'
         'letter-spacing:3px;color:#C9A84C;margin-bottom:8px;">HOW TO INVITE FRIENDS</div>'
-        '<div style="font-size:0.85rem;color:#8090B0;max-width:520px;margin:0 auto;line-height:1.8;">'
+        '<div style="font-size:0.92rem;color:#B0BCCF;max-width:520px;margin:0 auto;line-height:1.9;">'
         'Send your friends the app link. They open it, pick a username, and they\'re in '
         'their own $50,000 account, the same shared market, and they appear on the leaderboard instantly. '
         'No signup, no download, no account needed. Just a name and they\'re playing.'
