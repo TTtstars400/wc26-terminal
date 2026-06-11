@@ -711,7 +711,7 @@ elif page == "🏦 Market Terminal":
     # Summary metrics
     summary = val.get_market_summary()
     c1,c2,c3,c4,c5 = st.columns(5)
-    c1.metric("Market Cap", fmil(summary["market_cap"]))
+    c1.metric("Players", f'185 instruments')
     c2.metric("Advancing",  f'{summary["advancing"]} / {summary["total"]}',
               delta=f'+{summary["advancing"]}')
     c3.metric("Declining",  f'{summary["declining"]} / {summary["total"]}',
@@ -814,7 +814,7 @@ elif page == "🏦 Market Terminal":
         df.style.apply(_hl, axis=1)
           .format({"IPO $":"${:.2f}","Live $":"${:.2f}",
                    "Chg %":"{:+.3f}%","vs IPO":"{:+.3f}%"}, na_rep="—"),
-        use_container_width=True, height=480,
+        use_container_width=True, height=480, hide_index=True,
     )
 
     st.markdown("## Price Chart")
@@ -1072,7 +1072,7 @@ elif page == "💼 My Portfolio":
             hdf.style.apply(_hl_h, axis=1)
                .format({"Avg $":"${:.2f}","Live $":"${:.2f}","Value $M":"${:.3f}M",
                         "P&L $":"${:+,.2f}","P&L %":"{:+.3f}%","Alloc %":"{:.2f}%"}, na_rep="—"),
-            use_container_width=True, height=380,
+            use_container_width=True, height=380, hide_index=True,
         )
 
         pc1,pc2 = st.columns(2)
@@ -1126,7 +1126,7 @@ elif page == "💼 My Portfolio":
         st.dataframe(
             tdf.style.apply(_hl_t,axis=1)
                .format({"Price $":"${:.2f}","Total $":"${:,.2f}"}),
-            use_container_width=True, height=320,
+            use_container_width=True, height=320, hide_index=True,
         )
     else:
         st.markdown('<div class="info-box">No trades yet.</div>', unsafe_allow_html=True)
@@ -1344,7 +1344,7 @@ elif page == "🏆 Leaderboard":
         st.dataframe(
             lb_df.style.apply(_hl_lb,axis=1)
                  .format({"ROI %":"{:+.4f}%"}),
-            use_container_width=True, height=400,
+            use_container_width=True, height=400, hide_index=True,
         )
 
         if len(leaders)>1:
@@ -1631,7 +1631,7 @@ elif page == "🔧 Admin Panel":
             return [f"background-color:{'#051A0C' if row['Δ%']>0 else '#1A0508'}"]*len(row)
         st.dataframe(
             edf.style.apply(_hl_ev,axis=1).format({"Δ%":"{:+.2f}%"}),
-            use_container_width=True, height=360,
+            use_container_width=True, height=360, hide_index=True,
         )
 
     st.markdown("## Reset Market")
