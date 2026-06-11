@@ -289,15 +289,40 @@ with st.sidebar:
 
     if "username" not in st.session_state:
         st.session_state.username = ""
+    if "logged_in" not in st.session_state:
+        st.session_state.logged_in = False
 
-    uname = st.text_input("👤 Username", value=st.session_state.username,
-                           placeholder="Pick a name to start…").strip()
-    if uname and uname != st.session_state.username:
-        st.session_state.username = uname
-        db.get_or_create_user(uname)
-        st.rerun()
+    if not st.session_state.logged_in:
+        uname = st.text_input("👤 Username", placeholder="Pick a unique name…").strip()
+        pwd   = st.text_input("🔑 Password", type="password",
+                               placeholder="Set or enter your password").strip()
+        if st.button("Login / Register"):
+            if not uname:
+                st.error("Please enter a username.")
+            elif not pwd:
+                st.error("Please enter a password.")
+            else:
+                ok, msg = db.verify_user_password(uname, pwd)
+                if ok:
+                    st.session_state.username = uname
+                    st.session_state.logged_in = True
+                    if msg == "new_user":
+                        st.success(f"Welcome {uname}! Account created with $700M.")
+                    elif msg == "password_set":
+                        st.success(f"Welcome back {uname}! Password updated.")
+                    else:
+                        st.success(f"Welcome back {uname}!")
+                    st.rerun()
+                else:
+                    st.error("Incorrect password.")
+        st.markdown(
+            '<div style="font-size:0.72rem;color:#3A4060;margin-top:8px;line-height:1.6;">'
+            'New user? Pick a name and set a password.<br>'
+            'Returning? Use same username and password.</div>',
+            unsafe_allow_html=True
+        )
 
-    if st.session_state.username:
+    if st.session_state.logged_in and st.session_state.username:
         user = db.get_or_create_user(st.session_state.username)
         holdings = db.get_holdings(st.session_state.username)
         hval = sum(h["shares"]*h["live_price"] for h in holdings)
@@ -1600,4 +1625,3 @@ elif page == "🔧 Admin Panel":
             conn.commit(); conn.close()
             st.success("✅ Market reset to IPO prices")
             st.rerun()
-
