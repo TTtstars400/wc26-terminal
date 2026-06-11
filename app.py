@@ -1,5 +1,5 @@
 """
-app.py — WC26 Synthetic Equity Terminal
+app.py WC26 Synthetic Equity Terminal
 Run: streamlit run app.py
 """
 
@@ -229,6 +229,13 @@ hr { border: none; border-top: 1px solid #1C2340; margin: 16px 0; }
 .r-poor { background:#1A0F00;color:#FF8C00;border:1px solid #FF8C0044; }
 .r-bad  { background:#1A0808;color:#E61D25;border:1px solid #E61D2544; }
 
+/* How to Play readable text */
+.htp-body { font-size:0.95rem !important; color:#D0D8E8 !important; line-height:1.9 !important; }
+.htp-title { font-size:1.1rem !important; color:#ffffff !important; font-weight:700 !important; }
+.htp-sub { font-size:0.82rem !important; color:#8090B0 !important; }
+.wc-card p, .wc-card div, .wc-card span { font-size:0.92rem !important; }
+.wc-card ul li { font-size:0.92rem !important; color:#C8D0E0 !important; line-height:2.1 !important; }
+
 .flag { font-size:1.1rem; }
 .success-box { background:#061A0C;border-left:3px solid #2ECC71;padding:10px 14px;
     border-radius:0 4px 4px 0;font-family:'Inter',sans-serif;font-size:0.82rem;color:#2ECC71;margin:8px 0; }
@@ -255,7 +262,7 @@ hr { border: none; border-top: 1px solid #1C2340; margin: 16px 0; }
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
 def fmil(v):
-    """Smart formatter — K for thousands, M for millions"""
+    """Smart formatter K for thousands, M for millions"""
     if v >= 1_000_000:
         return f"${v/1_000_000:.2f}M"
     elif v >= 1_000:
@@ -344,7 +351,7 @@ with st.sidebar:
         )
 
     if st.session_state.logged_in and st.session_state.username:
-        # Always fetch fresh — reflects latest trades
+        # Always fetch fresh reflects latest trades
         user = db.get_or_create_user(st.session_state.username)
         holdings = db.get_holdings(st.session_state.username)
         hval = sum(h["shares"]*h["live_price"] for h in holdings)
@@ -418,15 +425,15 @@ with st.sidebar:
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
-# PAGE 1 — MARKET TERMINAL
+# PAGE 1 MARKET TERMINAL
 # ═══════════════════════════════════════════════════════════════════════════════
 # ═══════════════════════════════════════════════════════════════════════════════
-# PAGE 0 — HOW TO PLAY
+# PAGE 0 HOW TO PLAY
 # ═══════════════════════════════════════════════════════════════════════════════
 if page == "📖 How to Play":
     st.title("HOW TO PLAY")
     st.markdown(
-        '<div class="page-eyebrow">WC26 Equity Terminal · Complete Guide · Share this with your friends</div>',
+        '<div class="page-eyebrow">WC26 Equity Terminal  ·  Complete Guide  ·  Share this with your friends</div>',
         unsafe_allow_html=True
     )
 
@@ -435,10 +442,10 @@ if page == "📖 How to Play":
         '<div class="wc-card wc-card-red" style="padding:24px;margin-bottom:20px;">'
         '<div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.6rem;'
         'letter-spacing:3px;color:#fff;margin-bottom:12px;">WHAT IS THIS?</div>'
-        '<div style="font-size:0.92rem;color:#8090B0;line-height:1.8;">'
+        '<div style="font-size:0.96rem;color:#C0C8D8;line-height:1.9;">'
         'This is a synthetic stock market built around the 2026 FIFA World Cup. '
         'Every player in the tournament is a tradeable instrument with a share price. '
-        'Prices go up when players perform well and down when they perform badly — '
+        'Prices go up when players perform well and down when they perform badly '
         'based entirely on real match results, automatically fetched after each game. '
         'You start with <span style="color:#C9A84C;font-weight:700">$50,000</span> '
         'and compete against your friends to build the highest-value portfolio by the final on 19 July 2026.'
@@ -452,7 +459,7 @@ if page == "📖 How to Play":
     steps = [
         ("1", "#E61D25", "Pick a Username",
          "Type any name in the sidebar. Your $50,000 account is created instantly. "
-         "Your username is permanent — pick something good."),
+         "Your username is permanent pick something good."),
         ("2", "#C9A84C", "Browse the Market",
          "Go to Market Terminal to see all players with their IPO prices, positions, "
          "nations and price history. Search by name, team or ticker."),
@@ -465,7 +472,7 @@ if page == "📖 How to Play":
             f'<div class="wc-card" style="border-top:3px solid {colour};padding:18px;height:180px;">'
             f'<div style="font-family:\'Bebas Neue\',sans-serif;font-size:2rem;color:{colour};line-height:1">{num}</div>'
             f'<div style="font-weight:600;color:#fff;font-size:0.9rem;margin:6px 0;">{title}</div>'
-            f'<div style="font-size:0.8rem;color:#5A6080;line-height:1.6">{desc}</div>'
+            f'<div style="font-size:0.88rem;color:#A0AABB;line-height:1.7">{desc}</div>'
             f'</div>',
             unsafe_allow_html=True
         )
@@ -481,7 +488,7 @@ if page == "📖 How to Play":
 
     pr1, pr2, pr3, pr4 = st.columns(4)
     pricing_data = [
-        ("⚽ Attackers", "#E61D25", [
+        ("⚽ Goals and Attacking", "#E61D25", [
             ("Goal scored",        "+5%"),
             ("Assist",             "+3%"),
             ("xG outperformed",    "+2%"),
@@ -489,28 +496,28 @@ if page == "📖 How to Play":
             ("Penalty miss",       "−4%"),
             ("Big chance missed",  "−2%"),
         ]),
-        ("🎯 Midfielders", "#C9A84C", [
-            ("Pass accuracy >90%",   "+3%"),
-            ("Progressive pass",     "+2%"),
-            ("Interception",         "+1.5%"),
-            ("Dispossessed",         "−2%"),
-            ("Yellow card",          "−1%"),
-            ("Red card",             "−5%"),
+        ("🎯 Passing and Midfield", "#C9A84C", [
+            ("Pass accuracy >90%",    "+3%"),
+            ("Every 2 prog passes",   "+1%"),
+            ("Interception",          "+1.5%"),
+            ("Dispossessed",          "−2%"),
+            ("Yellow card",           "−1%"),
+            ("Red card",              "−5%"),
         ]),
-        ("🧱 Defenders & GKs", "#2A398D", [
+        ("🧱 Defensive", "#2A398D", [
             ("Clean sheet",          "+5%"),
-            ("Save (GK)",            "+1.5%"),
+            ("Save",                 "+1.5%"),
             ("Tackle won",           "+1%"),
             ("Goal conceded",        "−2%"),
             ("Own goal",             "−6%"),
             ("Error to goal",        "−5%"),
         ]),
-        ("🏆 Team & Rating", "#7B68EE", [
+        ("🏆 Team and Rating", "#7B68EE", [
             ("Team wins",            "+1%"),
             ("Team advances",        "+3%"),
             ("Team eliminated",      "−4%"),
             ("Rating 8.5+",          "+4%"),
-            ("Rating 7.5–8.4",       "+2%"),
+            ("Rating 7.5 to 8.4",    "+2%"),
             ("Rating below 5.0",     "−3%"),
         ]),
     ]
@@ -539,8 +546,10 @@ if page == "📖 How to Play":
         '<div style="font-size:0.82rem;color:#8090B0;line-height:1.7">'
         'All % changes <b style="color:#C9A84C">compound multiplicatively</b>, not additively. '
         'So if Mbappé scores twice (+5% twice), gets an assist (+3%), his team wins (+1%) '
-        'and he gets a 9.2 rating (+4%), his final price change is roughly <b style="color:#2ECC71">+19%</b> — '
-        'not just the sum. Big performances lead to big price moves.'
+        'and he gets a 9.2 rating (+4%), his final price change is roughly <b style="color:#2ECC71">+19%</b>. '
+        'Big performances lead to big price moves. '
+        '<b style="color:#fff">All rules apply to every player regardless of position</b> '
+        '— a defender scoring a goal gets +5%, an attacker making a tackle gets +1%.'
         '</div></div>',
         unsafe_allow_html=True
     )
@@ -581,12 +590,12 @@ if page == "📖 How to Play":
     # ── Tournament timeline ───────────────────────────────────────────────────
     st.markdown("## Tournament Timeline")
     stages = [
-        ("11 Jun","Group Stage Begins","48 matches · 12 groups of 4 · Mexico vs South Africa opens","#E61D25"),
+        ("11 Jun","Group Stage Begins","48 matches  ·  12 groups of 4  ·  Mexico vs South Africa opens","#E61D25"),
         ("27 Jun","Group Stage Ends","Top 2 from each group + 8 best 3rd-placed advance","#C9A84C"),
         ("30 Jun","Round of 32 Begins","Stage advance bonus: +3% for all players on qualifying teams","#C9A84C"),
-        ("11 Jul","Quarter-Finals","Only 8 teams remain · Elimination hits -4% for all eliminated players","#7B68EE"),
-        ("15 Jul","Semi-Finals","4 teams left · Biggest price swings of the tournament","#2A398D"),
-        ("19 Jul","THE FINAL","MetLife Stadium, New Jersey · Champions crowned","#2ECC71"),
+        ("11 Jul","Quarter-Finals","Only 8 teams remain  ·  Elimination hits -4% for all eliminated players","#7B68EE"),
+        ("15 Jul","Semi-Finals","4 teams left  ·  Biggest price swings of the tournament","#2A398D"),
+        ("19 Jul","THE FINAL","MetLife Stadium, New Jersey  ·  Champions crowned","#2ECC71"),
     ]
     for date, title, desc, colour in stages:
         st.markdown(
@@ -614,7 +623,7 @@ if page == "📖 How to Play":
          "When a strong team advances to the knockouts, every player on that team gets +3%. "
          "Hold a spread of players from teams likely to go deep in the tournament."),
         ("🧱", "Don't Ignore Defenders",
-         "A goalkeeper with a clean sheet earns +5% — same as a striker scoring. "
+         "A goalkeeper with a clean sheet earns +5% same as a striker scoring. "
          "A great defensive performance can be just as valuable as goals."),
         ("⚡", "React Fast After Results",
          "Prices update the moment a match finishes. "
@@ -632,7 +641,7 @@ if page == "📖 How to Play":
             f'<div class="wc-card" style="margin-bottom:10px;">'
             f'<div style="font-size:1.2rem;margin-bottom:6px">{icon}</div>'
             f'<div style="font-weight:600;color:#fff;font-size:0.88rem;margin-bottom:4px">{title}</div>'
-            f'<div style="font-size:0.8rem;color:#5A6080;line-height:1.6">{desc}</div>'
+            f'<div style="font-size:0.88rem;color:#A0AABB;line-height:1.7">{desc}</div>'
             f'</div>',
             unsafe_allow_html=True
         )
@@ -642,7 +651,7 @@ if page == "📖 How to Play":
     st.markdown(
         '<div class="wc-card wc-card-gold">'
         '<div style="font-size:0.84rem;color:#8090B0;line-height:1.8;">'
-        'The leaderboard ranks all managers by <b style="color:#C9A84C">ROI% (Return on Investment)</b> — '
+        'The leaderboard ranks all managers by <b style="color:#C9A84C">ROI% (Return on Investment)</b> '
         'how much your portfolio has grown from the $50,000 starting capital.<br><br>'
         '<b style="color:#fff">Total Portfolio Value</b> = Cash remaining + '
         'Market value of all your current holdings<br>'
@@ -661,12 +670,12 @@ if page == "📖 How to Play":
         '<div style="font-family:\'Bebas Neue\',sans-serif;font-size:1.4rem;'
         'letter-spacing:3px;color:#C9A84C;margin-bottom:8px;">HOW TO INVITE FRIENDS</div>'
         '<div style="font-size:0.85rem;color:#8090B0;max-width:520px;margin:0 auto;line-height:1.8;">'
-        'Send your friends the app link. They open it, pick a username, and they\'re in — '
+        'Send your friends the app link. They open it, pick a username, and they\'re in '
         'their own $50,000 account, the same shared market, and they appear on the leaderboard instantly. '
         'No signup, no download, no account needed. Just a name and they\'re playing.'
         '</div>'
         '<div style="margin-top:16px;font-size:0.78rem;color:#3A4060;">'
-        'Deploy to Streamlit Cloud for a permanent shareable link — see the setup guide.'
+        'Deploy to Streamlit Cloud for a permanent shareable link see the setup guide.'
         '</div></div>',
         unsafe_allow_html=True
     )
@@ -681,8 +690,8 @@ elif page == "🏦 Market Terminal":
 
     st.title("MARKET TERMINAL")
     st.markdown(
-        f'<div class="page-eyebrow">FIFA World Cup 2026 · Post-Match Pricing · '
-        f'{len(players)} Instruments · {datetime.now(timezone.utc).strftime("%d %b %Y %H:%M UTC")}</div>',
+        f'<div class="page-eyebrow">FIFA World Cup 2026  ·  Post-Match Pricing  ·  '
+        f'{len(players)} Instruments  ·  {datetime.now(timezone.utc).strftime("%d %b %Y %H:%M UTC")}</div>',
         unsafe_allow_html=True
     )
 
@@ -818,7 +827,7 @@ elif page == "🏦 Market Terminal":
     )
 
     st.markdown("## Price Chart")
-    opts = {f'{p["flag"]} {p["id"]} — {p["name"]}': p["id"] for p in players}
+    opts = {f'{p["flag"]} {p["id"]} {p["name"]}': p["id"] for p in players}
     sel  = st.selectbox("Select player", list(opts.keys()))
     sid  = opts[sel]
     sp   = next(p for p in players if p["id"]==sid)
@@ -844,7 +853,7 @@ elif page == "🏦 Market Terminal":
             font=dict(family="Inter", color="#5A6080", size=11),
             xaxis=dict(gridcolor="#1C2340"), yaxis=dict(gridcolor="#1C2340", tickprefix="$"),
             margin=dict(l=50,r=20,t=40,b=40), height=340,
-            title=dict(text=f'{sp["flag"]} {sp["name"]} ({sid}) — Price History',
+            title=dict(text=f'{sp["flag"]} {sp["name"]} ({sid}) Price History',
                        font=dict(color="#C9A84C", size=13, family="Bebas Neue")),
         )
         st.plotly_chart(fig, use_container_width=True)
@@ -889,12 +898,12 @@ elif page == "🏦 Market Terminal":
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
-# PAGE 2 — MATCH SCHEDULE
+# PAGE 2 MATCH SCHEDULE
 # ═══════════════════════════════════════════════════════════════════════════════
 elif page == "📅 Match Schedule":
     st.title("MATCH SCHEDULE")
     st.markdown(
-        '<div class="page-eyebrow">FIFA World Cup 2026 · Trading locks at kickoff · '
+        '<div class="page-eyebrow">FIFA World Cup 2026  ·  Trading locks at kickoff  ·  '
         'Prices update at full time</div>', unsafe_allow_html=True
     )
 
@@ -924,9 +933,9 @@ elif page == "📅 Match Schedule":
                 f'<span class="num" style="font-size:1.3rem;font-weight:700;color:#C9A84C">'
                 f'{m["home_score"] or 0} – {m["away_score"] or 0}</span>'
                 f'<span style="font-size:1rem;font-weight:600;color:#fff">{m["away_team"]}</span></div>'
-                f'<span class="lock-badge">🔒 {m["home_team_code"]} · {m["away_team_code"]} LOCKED</span>'
+                f'<span class="lock-badge">🔒 {m["home_team_code"]}  ·  {m["away_team_code"]} LOCKED</span>'
                 f'</div><div style="font-size:0.72rem;color:#3A4060;margin-top:6px">'
-                f'{m.get("stage","")} · {m["kickoff_utc"][:16].replace("T"," ")} UTC</div></div>',
+                f'{m.get("stage","")}  ·  {m["kickoff_utc"][:16].replace("T"," ")} UTC</div></div>',
                 unsafe_allow_html=True
             )
 
@@ -937,7 +946,7 @@ elif page == "📅 Match Schedule":
             st.markdown(
                 f'<div class="wc-card">'
                 f'<div style="font-size:0.68rem;color:#3A4060;margin-bottom:6px;">'
-                f'{m.get("stage","")} · {ko} UTC</div>'
+                f'{m.get("stage","")}  ·  {ko} UTC</div>'
                 f'<div style="font-size:0.95rem;font-weight:600;color:#C8D0E0;">'
                 f'{m["home_team"]} '
                 f'<span style="color:#3A4060">vs</span>'
@@ -948,7 +957,7 @@ elif page == "📅 Match Schedule":
             )
 
     if finished_m:
-        st.markdown("## Results — Prices Updated")
+        st.markdown("## Results Prices Updated")
         for m in finished_m[:30]:
             proc = m.get("processed",0)
             badge = ('<span style="color:#2ECC71;font-size:0.68rem">✅ Updated</span>'
@@ -958,7 +967,7 @@ elif page == "📅 Match Schedule":
             st.markdown(
                 f'<div class="wc-card" style="opacity:0.8">'
                 f'<div style="display:flex;justify-content:space-between;align-items:center;">'
-                f'<div><span style="font-size:0.68rem;color:#3A4060">{m.get("stage","")} · {ko} UTC</span> {badge}<br>'
+                f'<div><span style="font-size:0.68rem;color:#3A4060">{m.get("stage","")}  ·  {ko} UTC</span> {badge}<br>'
                 f'<span style="font-size:0.95rem;font-weight:600;color:#C8D0E0">'
                 f'{m["home_team"]} '
                 f'<span class="num" style="color:#C9A84C;font-weight:700">'
@@ -974,7 +983,7 @@ elif page == "📅 Match Schedule":
             'letter-spacing:3px;color:#C9A84C;margin-bottom:8px;">TOURNAMENT BEGINS</div>'
             '<div class="num" style="font-size:2.5rem;font-weight:700;color:#fff">11 JUNE 2026</div>'
             '<div style="color:#5A6080;margin-top:8px;font-size:0.85rem">'
-            'Mexico vs South Africa · Estadio Azteca · Mexico City</div>'
+            'Mexico vs South Africa  ·  Estadio Azteca  ·  Mexico City</div>'
             '<div style="color:#3A4060;margin-top:16px;font-size:0.78rem">'
             'The full schedule will load automatically once the tournament begins.</div>'
             '</div>',
@@ -987,19 +996,19 @@ elif page == "📅 Match Schedule":
         '<div class="wc-card">'
         '<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">'
         '<div><div style="font-size:0.68rem;color:#E61D25;text-transform:uppercase;'
-        'letter-spacing:0.12em;margin-bottom:6px;">1 · Match Kicks Off</div>'
+        'letter-spacing:0.12em;margin-bottom:6px;">1  ·  Match Kicks Off</div>'
         '<div style="font-size:0.82rem;color:#8090B0">All players on both teams are immediately locked. '
         'No buying or selling until the final whistle.</div></div>'
         '<div><div style="font-size:0.68rem;color:#C9A84C;text-transform:uppercase;'
-        'letter-spacing:0.12em;margin-bottom:6px;">2 · Full Time</div>'
+        'letter-spacing:0.12em;margin-bottom:6px;">2  ·  Full Time</div>'
         '<div style="font-size:0.82rem;color:#8090B0">App fetches complete match stats automatically '
-        'from the data provider. Goals, cards, result, clean sheets — all applied at once.</div></div>'
+        'from the data provider. Goals, cards, result, clean sheets all applied at once.</div></div>'
         '<div><div style="font-size:0.68rem;color:#2ECC71;text-transform:uppercase;'
-        'letter-spacing:0.12em;margin-bottom:6px;">3 · Prices Update</div>'
+        'letter-spacing:0.12em;margin-bottom:6px;">3  ·  Prices Update</div>'
         '<div style="font-size:0.82rem;color:#8090B0">Valuation engine applies all rules. '
         'Match rating bonus stacks on top. All changes compound multiplicatively.</div></div>'
         '<div><div style="font-size:0.68rem;color:#2A398D;text-transform:uppercase;'
-        'letter-spacing:0.12em;margin-bottom:6px;">4 · Market Reopens</div>'
+        'letter-spacing:0.12em;margin-bottom:6px;">4  ·  Market Reopens</div>'
         '<div style="font-size:0.82rem;color:#8090B0">Trading unlocks. '
         'React to the new prices before the next match.</div></div>'
         '</div></div>',
@@ -1011,7 +1020,7 @@ elif page == "📅 Match Schedule":
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
-# PAGE 3 — PORTFOLIO
+# PAGE 3 PORTFOLIO
 # ═══════════════════════════════════════════════════════════════════════════════
 elif page == "💼 My Portfolio":
     if not st.session_state.username or not st.session_state.get("logged_in"):
@@ -1024,7 +1033,7 @@ elif page == "💼 My Portfolio":
     locked   = db.get_locked_teams()
 
     st.title(f"PORTFOLIO")
-    st.markdown(f'<div class="page-eyebrow">Manager: {username} · Starting Capital: $50,000</div>',
+    st.markdown(f'<div class="page-eyebrow">Manager: {username}  ·  Starting Capital: $50,000</div>',
                 unsafe_allow_html=True)
 
     hval   = sum(h["shares"]*h["live_price"] for h in holdings)
@@ -1133,7 +1142,7 @@ elif page == "💼 My Portfolio":
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
-# PAGE 4 — TRADE DESK
+# PAGE 4 TRADE DESK
 # ═══════════════════════════════════════════════════════════════════════════════
 elif page == "⚡ Trade Desk":
     if not st.session_state.username or not st.session_state.get("logged_in"):
@@ -1147,21 +1156,21 @@ elif page == "⚡ Trade Desk":
 
     st.title("TRADE DESK")
     st.markdown(
-        f'<div class="page-eyebrow">Account: {username} · Cash: {fmil(user["cash"])} · '
+        f'<div class="page-eyebrow">Account: {username}  ·  Cash: {fmil(user["cash"])}  ·  '
         f'{len(locked)} Teams Locked</div>', unsafe_allow_html=True
     )
 
     if locked:
         st.markdown(
             f'<div class="lock-box">🔒 Trading suspended for {len(locked)} team(s) currently playing: '
-            f'<b>{", ".join(locked)}</b> — Unlocks automatically at full time.</div>',
+            f'<b>{", ".join(locked)}</b> Unlocks automatically at full time.</div>',
             unsafe_allow_html=True
         )
 
     ticker_map = {}
     for p in players:
         lk = " 🔒" if p["team_code"] in locked else ""
-        ticker_map[f'{p.get("flag","")} {p["id"]} — {p["name"]} ({p["team"]}) ${p["live_price"]:.2f}{lk}'] = p["id"]
+        ticker_map[f'{p.get("flag","")} {p["id"]} {p["name"]} ({p["team"]}) ${p["live_price"]:.2f}{lk}'] = p["id"]
 
     col_order, col_info = st.columns([1.1, 1])
 
@@ -1186,11 +1195,11 @@ elif page == "⚡ Trade Desk":
         st.markdown(
             f'<div style="background:{bg};border:1px solid {border};border-radius:8px;padding:16px;margin-top:12px;">'
             f'<div style="font-size:0.65rem;color:#3A4060;text-transform:uppercase;'
-            f'letter-spacing:0.15em;margin-bottom:12px;">{"🔒 LOCKED — " if is_locked else ""}Order Preview</div>'
+            f'letter-spacing:0.15em;margin-bottom:12px;">{"🔒 LOCKED " if is_locked else ""}Order Preview</div>'
             f'<table style="width:100%;font-size:0.84rem;border-spacing:0 6px;">'
             f'<tr><td style="color:#5A6080">Instrument</td>'
             f'<td style="text-align:right;color:#fff;font-weight:600">'
-            f'{player.get("flag","")} {player["id"]} — {player["name"]}</td></tr>'
+            f'{player.get("flag","")} {player["id"]} {player["name"]}</td></tr>'
             f'<tr><td style="color:#5A6080">Type</td>'
             f'<td style="text-align:right;color:{"#2ECC71" if trade_type=="BUY" else "#E61D25"};font-weight:700">{trade_type}</td></tr>'
             f'<tr><td style="color:#5A6080">Shares</td>'
@@ -1292,11 +1301,11 @@ elif page == "⚡ Trade Desk":
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
-# PAGE 5 — LEADERBOARD
+# PAGE 5 LEADERBOARD
 # ═══════════════════════════════════════════════════════════════════════════════
 elif page == "🏆 Leaderboard":
     st.title("LEADERBOARD")
-    st.markdown('<div class="page-eyebrow">All Managers · Ranked by ROI% · Real-time</div>',
+    st.markdown('<div class="page-eyebrow">All Managers  ·  Ranked by ROI%  ·  Real-time</div>',
                 unsafe_allow_html=True)
 
     leaders = db.get_leaderboard()
@@ -1371,11 +1380,11 @@ elif page == "🏆 Leaderboard":
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
-# PAGE 6 — ADMIN PANEL
+# PAGE 6 ADMIN PANEL
 # ═══════════════════════════════════════════════════════════════════════════════
 elif page == "🔧 Admin Panel":
     st.title("ADMIN PANEL")
-    st.markdown('<div class="page-eyebrow">System Control · API · Manual Match Entry</div>',
+    st.markdown('<div class="page-eyebrow">System Control  ·  API  ·  Manual Match Entry</div>',
                 unsafe_allow_html=True)
 
     # ── Password protection ───────────────────────────────────────────────────
@@ -1410,7 +1419,7 @@ elif page == "🔧 Admin Panel":
     bbs_ready = config.BBS_API_KEY and config.BBS_API_KEY != "YOUR_BBS_KEY_HERE"
     if bbs_ready:
         st.markdown(
-            '<div class="success-box">✅ Big Balls Data API key configured — '
+            '<div class="success-box">✅ Big Balls Data API key configured '
             'live WC2026 data active from 11 June 2026</div>',
             unsafe_allow_html=True
         )
@@ -1433,7 +1442,7 @@ elif page == "🔧 Admin Panel":
             '<div class="lock-box">⚪ Big Balls Data API key not set.<br>'
             '<b>Step 1:</b> Sign up free at <b>bigballsdata.com/signup</b> (no card needed)<br>'
             '<b>Step 2:</b> Open config.py, find BBS_API_KEY and paste your key<br>'
-            '<b>Step 3:</b> Restart the app — everything activates automatically</div>',
+            '<b>Step 3:</b> Restart the app everything activates automatically</div>',
             unsafe_allow_html=True
         )
 
@@ -1490,7 +1499,7 @@ elif page == "🔧 Admin Panel":
     )
 
     ticker_map_admin = {
-        f'{p.get("flag","")} {p["id"]} — {p["name"]} ({p["team"]})': p["id"]
+        f'{p.get("flag","")} {p["id"]} {p["name"]} ({p["team"]})': p["id"]
         for p in players
     }
 
@@ -1531,7 +1540,7 @@ elif page == "🔧 Admin Panel":
         cur = ev_player["live_price"]
         st.markdown(
             f'<div style="font-size:0.78rem;color:#5A6080;margin-top:4px;">'
-            f'Standard impact: <span style="color:#C9A84C">{std}</span> · '
+            f'Standard impact: <span style="color:#C9A84C">{std}</span>  ·  '
             f'Current price: <span style="color:#C9A84C">${cur:.2f}</span></div>',
             unsafe_allow_html=True
         )
@@ -1555,7 +1564,7 @@ elif page == "🔧 Admin Panel":
             st.rerun()
         else:
             st.markdown(
-                '<div class="error-box">❌ Could not apply event — '
+                '<div class="error-box">❌ Could not apply event '
                 'check player position matches event type.</div>',
                 unsafe_allow_html=True
             )
