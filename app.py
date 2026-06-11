@@ -711,7 +711,7 @@ elif page == "🏦 Market Terminal":
     # Summary metrics
     summary = val.get_market_summary()
     c1,c2,c3,c4,c5 = st.columns(5)
-    c1.metric("Players", f'185 instruments')
+    c1.metric("Players", "185")
     c2.metric("Advancing",  f'{summary["advancing"]} / {summary["total"]}',
               delta=f'+{summary["advancing"]}')
     c3.metric("Declining",  f'{summary["declining"]} / {summary["total"]}',
