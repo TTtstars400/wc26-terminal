@@ -341,17 +341,30 @@ def get_trade_history(username: str, limit: int = 100) -> list:
         return []
 
 def get_leaderboard() -> list:
+    """
+    Batch leaderboard — fetches all users, all portfolios, all players
+    in just 3 queries instead of N queries (one per user).
+    """
     sb = get_client()
     try:
-        users = sb.table("users").select("username,cash").execute().data or []
+        # 3 queries total regardless of how many users
+        users    = sb.table("users").select("username,cash").execute().data or []
+        all_port = sb.table("portfolios").select("username,player_id,shares").gt("shares", 0).execute().data or []
+        all_pl   = sb.table("players").select("id,live_price").execute().data or []
+
+        # Build price lookup dict
+        price_map = {p["id"]: p["live_price"] for p in all_pl}
+
+        # Build holdings value per user
+        holdings_map = {}
+        for h in all_port:
+            uname = h["username"]
+            price = price_map.get(h["player_id"], 0)
+            holdings_map[uname] = holdings_map.get(uname, 0) + h["shares"] * price
+
         result = []
         for u in users:
-            holdings = sb.table("portfolios").select("shares,player_id").eq("username", u["username"]).gt("shares", 0).execute().data or []
-            hval = 0.0
-            for h in holdings:
-                p = get_player(h["player_id"])
-                if p:
-                    hval += h["shares"] * p["live_price"]
+            hval  = holdings_map.get(u["username"], 0.0)
             total = u["cash"] + hval
             roi   = ((total - 50_000) / 50_000) * 100
             result.append({
