@@ -8,8 +8,8 @@ import os
 from datetime import datetime, timezone
 from supabase import create_client, Client
 
-SUPABASE_URL = os.environ.get("SUPABASE_URL", "https://auxwwwukaqqmoubeisoo.supabase.co")
-SUPABASE_KEY = os.environ.get("SUPABASE_SECRET_KEY", "sb_secret_qifI9kvgaE-q1UNvlFi_4g_FfCSs0Dp")
+SUPABASE_URL = os.environ.get("SUPABASE_URL", "")
+SUPABASE_KEY = os.environ.get("SUPABASE_SECRET_KEY", "")
 
 _client: Client | None = None
 
