@@ -323,6 +323,7 @@ with st.sidebar:
         )
 
     if st.session_state.logged_in and st.session_state.username:
+        # Always fetch fresh — reflects latest trades
         user = db.get_or_create_user(st.session_state.username)
         holdings = db.get_holdings(st.session_state.username)
         hval = sum(h["shares"]*h["live_price"] for h in holdings)
@@ -986,12 +987,12 @@ elif page == "📅 Match Schedule":
 # PAGE 3 — PORTFOLIO
 # ═══════════════════════════════════════════════════════════════════════════════
 elif page == "💼 My Portfolio":
-    if not st.session_state.username:
-        st.warning("Enter a username in the sidebar to view your portfolio.")
+    if not st.session_state.username or not st.session_state.get("logged_in"):
+        st.warning("Please log in from the sidebar to view your portfolio.")
         st.stop()
 
     username = st.session_state.username
-    user     = db.get_or_create_user(username)
+    user     = db.get_or_create_user(username)  # always fresh from Supabase
     holdings = db.get_holdings(username)
     locked   = db.get_locked_teams()
 
@@ -1108,12 +1109,12 @@ elif page == "💼 My Portfolio":
 # PAGE 4 — TRADE DESK
 # ═══════════════════════════════════════════════════════════════════════════════
 elif page == "⚡ Trade Desk":
-    if not st.session_state.username:
-        st.warning("Enter a username in the sidebar to trade.")
+    if not st.session_state.username or not st.session_state.get("logged_in"):
+        st.warning("Please log in from the sidebar to trade.")
         st.stop()
 
     username = st.session_state.username
-    user     = db.get_or_create_user(username)
+    user     = db.get_or_create_user(username)  # always fresh from Supabase
     players  = db.get_all_players()
     locked   = db.get_locked_teams()
 
