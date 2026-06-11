@@ -96,6 +96,7 @@ PLAYERS_SEED = [
     {"id":"VIT","name":"Vitinha",               "pos":"MID","team":"Portugal","team_code":"POR","flag":"🇵🇹","ipo":78.00},
     {"id":"RUD2","name":"Rúben Dias",           "pos":"DEF","team":"Portugal","team_code":"POR","flag":"🇵🇹","ipo":86.00},
     {"id":"RAM","name":"Gonçalo Ramos",         "pos":"ATT","team":"Portugal","team_code":"POR","flag":"🇵🇹","ipo":76.00},
+    {"id":"NME","name":"Nuno Mendes",             "pos":"DEF","team":"Portugal","team_code":"POR","flag":"🇵🇹","ipo":79.00},
     {"id":"COS","name":"Diogo Costa",           "pos":"GK", "team":"Portugal","team_code":"POR","flag":"🇵🇹","ipo":74.00},
 
     # ── NETHERLANDS (Group F) ────────────────────────────────────────────────
@@ -148,7 +149,7 @@ PLAYERS_SEED = [
     {"id":"DIA","name":"Luis Díaz",             "pos":"ATT","team":"Colombia","team_code":"COL","flag":"🇨🇴","ipo":82.00},
     {"id":"JCA","name":"Juan Camilo Hernández", "pos":"ATT","team":"Colombia","team_code":"COL","flag":"🇨🇴","ipo":76.00},
     {"id":"JAM","name":"James Rodríguez",       "pos":"MID","team":"Colombia","team_code":"COL","flag":"🇨🇴","ipo":78.00},
-    {"id":"CAI","name":"Moisés Caicedo",        "pos":"MID","team":"Colombia","team_code":"COL","flag":"🇨🇴","ipo":82.00},
+    {"id":"CAI","name":"Moisés Caicedo",        "pos":"MID","team":"Ecuador","team_code":"ECU","flag":"🇪🇨","ipo":82.00},
     {"id":"SAN2","name":"Davinson Sánchez",     "pos":"DEF","team":"Colombia","team_code":"COL","flag":"🇨🇴","ipo":72.00},
 
     # ── URUGUAY (Group H) ────────────────────────────────────────────────────
