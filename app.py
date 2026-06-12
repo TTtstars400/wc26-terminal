@@ -1173,15 +1173,23 @@ elif page == "⚡ Trade Desk":
         )
 
     ticker_map = {}
+    ticker_list = []
     for p in players:
         lk = " 🔒" if p["team_code"] in locked else ""
-        ticker_map[f'{p.get("flag","")} {p["id"]} {p["name"]} ({p["team"]}) ${p["live_price"]:.2f}{lk}'] = p["id"]
+        label = f'{p.get("flag","")} {p["id"]} {p["name"]} ({p["team"]}) ${p["live_price"]:.2f}{lk}'
+        ticker_map[label] = p["id"]
+        ticker_list.append(label)
 
     col_order, col_info = st.columns([1.1, 1])
 
     with col_order:
         st.markdown("## Order Entry")
-        sel_label = st.selectbox("🔍 Select Instrument", list(ticker_map.keys()))
+        sel_label = st.selectbox(
+            "🔍 Select Instrument",
+            ticker_list,
+            key="trade_player_select",
+            index=0
+        )
         sel_id    = ticker_map[sel_label]
         player    = db.get_player(sel_id)
         is_locked, lock_reason = db.is_player_locked(sel_id)
@@ -1428,19 +1436,27 @@ elif page == "🔧 Admin Panel":
             'live WC2026 data active from 11 June 2026</div>',
             unsafe_allow_html=True
         )
-        ac1, ac2 = st.columns(2)
+        ac1, ac2, ac3 = st.columns(3)
         with ac1:
-            if st.button("📥 Fetch Full WC2026 Schedule"):
+            if st.button("📥 Fetch Full Schedule"):
                 with st.spinner("Fetching all 104 fixtures…"):
                     count = api.fetch_schedule()
                 st.success(f"Loaded {count} fixtures")
                 st.rerun()
         with ac2:
-            if st.button("🔄 Check & Process Matches Now"):
+            if st.button("🔄 Check Live Matches"):
                 with st.spinner("Checking live + finished matches…"):
                     api.update_match_statuses()
                     results = api.process_finished_matches()
                 st.success(f"Processed {len(results)} player price updates")
+                st.rerun()
+        with ac3:
+            if st.button("⚡ Force Full Refresh Now"):
+                with st.spinner("Running full refresh…"):
+                    count = api.fetch_schedule()
+                    api.update_match_statuses()
+                    results = api.process_finished_matches()
+                st.success(f"Done — {count} fixtures, {len(results)} price updates")
                 st.rerun()
     else:
         st.markdown(
