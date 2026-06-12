@@ -1,3 +1,4 @@
+import os
 """
 api_client.py — Big Balls Data integration for WC26 Equity Terminal
 --------------------------------------------------------------------
@@ -62,8 +63,8 @@ def _get(endpoint: str, params: dict = None, key: str = None) -> dict | None:
     Safe API call with automatic throttling.
     Reads X-RateLimit headers to avoid ever hitting the limit.
     """
-    api_key = key or config.BBS_API_KEY
-    if not api_key or api_key == "YOUR_BBS_KEY_HERE":
+    api_key = key or os.environ.get("BBS_API_KEY", config.BBS_API_KEY)
+    if not api_key or api_key in ("YOUR_BBS_KEY_HERE", ""):
         print("[BBS] No API key configured")
         return None
 
@@ -696,34 +697,36 @@ def start_scheduler():
     def _loop():
         last_schedule_fetch = 0
         schedule_interval   = 6 * 3600  # refresh schedule every 6 hours
+        first_run           = True       # fetch immediately on startup
 
         while _scheduler_running:
             try:
-                api_ready = (config.BBS_API_KEY and
-                             config.BBS_API_KEY != "YOUR_BBS_KEY_HERE")
+                api_ready = bool(os.environ.get("BBS_API_KEY", "").strip())
 
                 if api_ready:
                     now = time.time()
 
-                    # Refresh full schedule every 6 hours
-                    if now - last_schedule_fetch > schedule_interval:
+                    # Fetch schedule immediately on first run OR every 6 hours
+                    if first_run or (now - last_schedule_fetch > schedule_interval):
                         print("[Scheduler] Fetching WC2026 schedule...")
                         count = fetch_schedule()
                         print(f"[Scheduler] Schedule: {count} fixtures loaded")
                         last_schedule_fetch = now
+                        first_run = False
                         time.sleep(3)
 
-                    # Check match statuses
+                    # Check match statuses and lock/unlock trading
                     update_match_statuses()
                     time.sleep(3)
 
-                    # Process any finished matches
+                    # Process any finished matches and update prices
                     results = process_finished_matches()
                     if results:
                         print(f"[Scheduler] ✅ {len(results)} player price updates applied")
 
                 else:
-                    print("[Scheduler] Waiting for API key in config.py...")
+                    print("[Scheduler] No API key found in environment variables.")
+                    first_run = True  # retry fetch when key becomes available
 
             except Exception as e:
                 print(f"[Scheduler] Error: {e}")
