@@ -1474,6 +1474,26 @@ elif page == "🔧 Admin Panel":
                 if bbs_key:
                     with st.spinner("Fetching schedule…"):
                         try:
+                            import requests, os
+                            key = os.environ.get("BBS_API_KEY", "")
+                            headers = {"Authorization": f"Bearer {key}"}
+
+                            # Try different league keys
+                            for league_key in ["wc2026", "fifa-world-cup-2026", "world-cup-2026", "FIFA_WC_2026"]:
+                                r = requests.get(
+                                    "https://api.bigballsdata.com/v1/matches",
+                                    headers=headers,
+                                    params={"sport": "football", "league": league_key, "limit": 5},
+                                    timeout=15
+                                )
+                                st.markdown(f"**League key `{league_key}`:** Status {r.status_code}")
+                                if r.status_code == 200:
+                                    data = r.json()
+                                    st.markdown(f"Response preview: `{str(data)[:300]}`")
+                                    break
+                                else:
+                                    st.markdown(f"Response: `{r.text[:200]}`")
+
                             count = api.fetch_schedule()
                             st.markdown(f"Schedule fetch: **{count} fixtures**")
                         except Exception as e:
