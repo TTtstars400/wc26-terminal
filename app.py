@@ -1444,7 +1444,7 @@ elif page == "🔧 Admin Panel":
         st.stop()
 
     st.markdown("## API Configuration")
-    bbs_ready = config.BBS_API_KEY and config.BBS_API_KEY != "YOUR_BBS_KEY_HERE"
+    bbs_ready = bool(os.environ.get("FOOTBALL_DATA_API_KEY", ""))
     if bbs_ready:
         st.markdown(
             '<div class="success-box">✅ Big Balls Data API key configured '
@@ -1471,50 +1471,20 @@ elif page == "🔧 Admin Panel":
                 bbs_key = os.environ.get("BBS_API_KEY", "")
                 st.markdown(f"**API Key found:** {'✅ Yes (' + bbs_key[:8] + '...)' if bbs_key else '❌ No key in environment'}")
 
-                if bbs_key:
-                    with st.spinner("Fetching schedule…"):
-                        try:
-                            import requests, os
-                            key = os.environ.get("BBS_API_KEY", "")
-                            headers = {"Authorization": f"Bearer {key}"}
-
-                            # Try different league keys
-                            for league_key in ["wc2026", "fifa-world-cup-2026", "world-cup-2026", "FIFA_WC_2026"]:
-                                r = requests.get(
-                                    "https://api.bigballsdata.com/v1/matches",
-                                    headers=headers,
-                                    params={"sport": "football", "league": league_key, "limit": 5},
-                                    timeout=15
-                                )
-                                st.markdown(f"**League key `{league_key}`:** Status {r.status_code}")
-                                if r.status_code == 200:
-                                    data = r.json()
-                                    st.markdown(f"Response preview: `{str(data)[:300]}`")
-                                    break
-                                else:
-                                    st.markdown(f"Response: `{r.text[:200]}`")
-
-                            count = api.fetch_schedule()
-                            st.markdown(f"Schedule fetch: **{count} fixtures**")
-                        except Exception as e:
-                            st.error(f"Schedule error: {e}")
-
-                    with st.spinner("Checking matches…"):
-                        try:
-                            api.update_match_statuses()
-                            st.markdown("Match status check: ✅")
-                        except Exception as e:
-                            st.error(f"Status error: {e}")
-
-                    with st.spinner("Processing finished matches…"):
-                        try:
-                            results = api.process_finished_matches()
-                            st.markdown(f"Price updates: **{len(results)} players updated**")
-                        except Exception as e:
-                            st.error(f"Processing error: {e}")
+                import os
+                fd_key = os.environ.get("FOOTBALL_DATA_API_KEY", "")
+                if not fd_key:
+                    st.error("❌ Add FOOTBALL_DATA_API_KEY to Streamlit Secrets first!")
                 else:
-                    st.error("No BBS_API_KEY found in Streamlit Secrets. Check Settings → Secrets.")
-                st.rerun()
+                    with st.spinner("Fetching schedule + checking matches + processing results…"):
+                        try:
+                            count = api.fetch_schedule()
+                            api.update_match_statuses()
+                            results = api.process_finished_matches()
+                            st.success(f"✅ {count} fixtures loaded · {len(results)} player prices updated")
+                        except Exception as e:
+                            st.error(f"Error: {e}")
+                    st.rerun()
     else:
         st.markdown(
             '<div class="lock-box">⚪ Big Balls Data API key not set.<br>'
