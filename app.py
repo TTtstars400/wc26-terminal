@@ -37,6 +37,21 @@ st.set_page_config(
 )
 
 db.init_db()
+
+# ── Cron job trigger ──────────────────────────────────────────────────────────
+# cron-job.org pings ?trigger=update every 5 minutes to fetch match data
+query_params = st.query_params
+if query_params.get("trigger") == "update":
+    try:
+        import api_client as _api
+        _api.fetch_schedule()
+        _api.update_match_statuses()
+        results = _api.process_finished_matches()
+        st.write(f"OK: {len(results)} updates at {datetime.now(timezone.utc).isoformat()}")
+    except Exception as e:
+        st.write(f"ERROR: {e}")
+    st.stop()
+
 if not api.is_running():
     api.start_scheduler()
 
@@ -1452,11 +1467,33 @@ elif page == "🔧 Admin Panel":
                 st.rerun()
         with ac3:
             if st.button("⚡ Force Full Refresh Now"):
-                with st.spinner("Running full refresh…"):
-                    count = api.fetch_schedule()
-                    api.update_match_statuses()
-                    results = api.process_finished_matches()
-                st.success(f"Done — {count} fixtures, {len(results)} price updates")
+                import os
+                bbs_key = os.environ.get("BBS_API_KEY", "")
+                st.markdown(f"**API Key found:** {'✅ Yes (' + bbs_key[:8] + '...)' if bbs_key else '❌ No key in environment'}")
+
+                if bbs_key:
+                    with st.spinner("Fetching schedule…"):
+                        try:
+                            count = api.fetch_schedule()
+                            st.markdown(f"Schedule fetch: **{count} fixtures**")
+                        except Exception as e:
+                            st.error(f"Schedule error: {e}")
+
+                    with st.spinner("Checking matches…"):
+                        try:
+                            api.update_match_statuses()
+                            st.markdown("Match status check: ✅")
+                        except Exception as e:
+                            st.error(f"Status error: {e}")
+
+                    with st.spinner("Processing finished matches…"):
+                        try:
+                            results = api.process_finished_matches()
+                            st.markdown(f"Price updates: **{len(results)} players updated**")
+                        except Exception as e:
+                            st.error(f"Processing error: {e}")
+                else:
+                    st.error("No BBS_API_KEY found in Streamlit Secrets. Check Settings → Secrets.")
                 st.rerun()
     else:
         st.markdown(
