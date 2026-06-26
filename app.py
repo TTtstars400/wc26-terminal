@@ -853,7 +853,7 @@ elif page == "🏦 Market Terminal":
 
     if len(hist) > 1:
         hdf = pd.DataFrame(hist)
-        hdf["ts"] = pd.to_datetime(hdf["ts"], utc=True)
+        hdf["ts"] = pd.to_datetime(hdf["ts"], utc=True, errors="coerce")
         lc  = "#2ECC71" if hdf["price"].iloc[-1] >= hdf["price"].iloc[0] else "#E61D25"
         fc_ = "rgba(46,204,113,0.07)" if lc=="#2ECC71" else "rgba(230,29,37,0.07)"
         fig = go.Figure()
@@ -891,7 +891,7 @@ elif page == "🏦 Market Terminal":
             h2  = db.get_price_history(pid, 200)
             if len(h2)>1:
                 df2 = pd.DataFrame(h2)
-                df2["ts"] = pd.to_datetime(df2["ts"], utc=True)
+                df2["ts"] = pd.to_datetime(df2["ts"], utc=True, errors="coerce")
                 df2["idx"] = (df2["price"]/df2["price"].iloc[0])*100
                 fig2.add_trace(go.Scatter(x=df2["ts"],y=df2["idx"],mode="lines",
                     name=pid, line=dict(color=colors[i%5],width=2)))
@@ -1308,7 +1308,7 @@ elif page == "⚡ Trade Desk":
         hist = db.get_price_history(sel_id, 80)
         if len(hist) > 2:
             hdf_m = pd.DataFrame(hist)
-            hdf_m["ts"] = pd.to_datetime(hdf_m["ts"], utc=True)
+            hdf_m["ts"] = pd.to_datetime(hdf_m["ts"], utc=True, errors="coerce")
             lc_m = "#2ECC71" if hdf_m["price"].iloc[-1]>=hdf_m["price"].iloc[0] else "#E61D25"
             fig_m = go.Figure(go.Scatter(
                 x=hdf_m["ts"], y=hdf_m["price"], mode="lines+markers",
