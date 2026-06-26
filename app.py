@@ -39,21 +39,19 @@ st.set_page_config(
 db.init_db()
 
 # ── Cron job trigger ──────────────────────────────────────────────────────────
-# cron-job.org pings ?trigger=update every 5 minutes to fetch match data
-query_params = st.query_params
-if query_params.get("trigger") == "update":
-    try:
-        import api_client as _api
-        _api.fetch_schedule()
-        _api.update_match_statuses()
-        results = _api.process_finished_matches()
-        st.write(f"OK: {len(results)} updates at {datetime.now(timezone.utc).isoformat()}")
-    except Exception as e:
-        st.write(f"ERROR: {e}")
-    st.stop()
-
-if not api.is_running():
-    api.start_scheduler()
+try:
+    _trigger = st.query_params.get("trigger", "")
+    if _trigger == "update":
+        try:
+            api.fetch_schedule()
+            api.update_match_statuses()
+            results = api.process_finished_matches()
+            st.text(f"OK {len(results)}")
+        except Exception as _e:
+            st.text(f"ERROR {_e}")
+        st.stop()
+except Exception:
+    pass
 
 # ── CSS ───────────────────────────────────────────────────────────────────────
 st.markdown("""
