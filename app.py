@@ -853,7 +853,7 @@ elif page == "🏦 Market Terminal":
 
     if len(hist) > 1:
         hdf = pd.DataFrame(hist)
-        hdf["ts"] = pd.to_datetime(hdf["ts"])
+        hdf["ts"] = pd.to_datetime(hdf["ts"], utc=True)
         lc  = "#2ECC71" if hdf["price"].iloc[-1] >= hdf["price"].iloc[0] else "#E61D25"
         fc_ = "rgba(46,204,113,0.07)" if lc=="#2ECC71" else "rgba(230,29,37,0.07)"
         fig = go.Figure()
@@ -891,7 +891,7 @@ elif page == "🏦 Market Terminal":
             h2  = db.get_price_history(pid, 200)
             if len(h2)>1:
                 df2 = pd.DataFrame(h2)
-                df2["ts"] = pd.to_datetime(df2["ts"])
+                df2["ts"] = pd.to_datetime(df2["ts"], utc=True)
                 df2["idx"] = (df2["price"]/df2["price"].iloc[0])*100
                 fig2.add_trace(go.Scatter(x=df2["ts"],y=df2["idx"],mode="lines",
                     name=pid, line=dict(color=colors[i%5],width=2)))
@@ -1308,7 +1308,7 @@ elif page == "⚡ Trade Desk":
         hist = db.get_price_history(sel_id, 80)
         if len(hist) > 2:
             hdf_m = pd.DataFrame(hist)
-            hdf_m["ts"] = pd.to_datetime(hdf_m["ts"])
+            hdf_m["ts"] = pd.to_datetime(hdf_m["ts"], utc=True)
             lc_m = "#2ECC71" if hdf_m["price"].iloc[-1]>=hdf_m["price"].iloc[0] else "#E61D25"
             fig_m = go.Figure(go.Scatter(
                 x=hdf_m["ts"], y=hdf_m["price"], mode="lines+markers",
@@ -1465,21 +1465,16 @@ elif page == "🔧 Admin Panel":
                 st.rerun()
         with ac3:
             if st.button("⚡ Force Full Refresh Now"):
-                import os
-                bbs_key = os.environ.get("BBS_API_KEY", "")
-                st.markdown(f"**API Key found:** {'✅ Yes (' + bbs_key[:8] + '...)' if bbs_key else '❌ No key in environment'}")
-
-                import os
                 fd_key = os.environ.get("FOOTBALL_DATA_API_KEY", "")
                 if not fd_key:
-                    st.error("❌ Add FOOTBALL_DATA_API_KEY to Streamlit Secrets first!")
+                    st.error("❌ Add FOOTBALL_DATA_API_KEY to Streamlit Secrets!")
                 else:
-                    with st.spinner("Fetching schedule + checking matches + processing results…"):
+                    with st.spinner("Running full refresh…"):
                         try:
                             count = api.fetch_schedule()
                             api.update_match_statuses()
                             results = api.process_finished_matches()
-                            st.success(f"✅ {count} fixtures loaded · {len(results)} player prices updated")
+                            st.success(f"✅ {count} fixtures · {len(results)} price updates")
                         except Exception as e:
                             st.error(f"Error: {e}")
                     st.rerun()
@@ -1519,15 +1514,16 @@ elif page == "🔧 Admin Panel":
         hc  = tc_map.get(home_team, home_team[:3].upper())
         ac  = tc_map.get(away_team, away_team[:3].upper())
         now = datetime.now(timezone.utc).isoformat()
-        conn = db.get_conn()
-        conn.execute("""INSERT INTO matches
-            (home_team,home_team_code,away_team,away_team_code,
-             kickoff_utc,stage,status,home_score,away_score,processed)
-            VALUES (?,?,?,?,?,?,'FINISHED',?,?,0)""",
-            (home_team,hc,away_team,ac,now,stage_sel,home_goals,away_goals))
-        conn.commit()
-        mid = conn.execute("SELECT last_insert_rowid()").fetchone()[0]
-        conn.close()
+        sb  = db.get_client()
+        sb.table("matches").insert({
+            "home_team": home_team, "home_team_code": hc,
+            "away_team": away_team, "away_team_code": ac,
+            "kickoff_utc": now, "stage": stage_sel,
+            "status": "FINISHED", "home_score": home_goals,
+            "away_score": away_goals, "processed": 0
+        }).execute()
+        row = sb.table("matches").select("id").eq("home_team_code", hc).eq("away_team_code", ac).order("id", desc=True).limit(1).execute()
+        mid = row.data[0]["id"] if row.data else 0
         with st.spinner("Processing all player prices…"):
             results = api.process_manual_match(mid, hc, ac, home_goals, away_goals, is_ko)
         st.success(f"✅ {len(results)} player prices updated")
@@ -1654,18 +1650,13 @@ elif page == "🔧 Admin Panel":
         all_codes = sorted(set(p["team_code"] for p in players))
         lock_t = st.selectbox("Lock team", all_codes)
         if st.button(f"🔒 Lock {lock_t}"):
-            conn = db.get_conn()
-            conn.execute("INSERT OR REPLACE INTO trading_locks (team_code,match_id,locked_at) VALUES (?,0,?)",
-                         (lock_t, datetime.now(timezone.utc).isoformat()))
-            conn.commit(); conn.close()
+            db.lock_teams(0, lock_t, lock_t)
             st.rerun()
     with lc2:
         if locked:
             unlock_t = st.selectbox("Unlock team", sorted(locked))
             if st.button(f"🔓 Unlock {unlock_t}"):
-                conn = db.get_conn()
-                conn.execute("DELETE FROM trading_locks WHERE team_code=?", (unlock_t,))
-                conn.commit(); conn.close()
+                db.unlock_teams(unlock_t, unlock_t)
                 st.rerun()
         else:
             st.info("No teams currently locked.")
@@ -1693,17 +1684,17 @@ elif page == "🔧 Admin Panel":
     with st.expander("⚠️ Danger Zone"):
         confirm = st.text_input("Type RESET to confirm")
         if st.button("Reset All Prices to IPO") and confirm=="RESET":
-            conn = db.get_conn()
-            conn.execute("UPDATE players SET live_price=ipo_price,prev_price=ipo_price,volume=0,last_rating=NULL")
-            conn.execute("DELETE FROM price_history")
-            conn.execute("DELETE FROM match_events")
-            conn.execute("DELETE FROM trading_locks")
-            conn.execute("DELETE FROM matches")
-            from datetime import datetime as dt
+            sb = db.get_client()
             now = datetime.now(timezone.utc).isoformat()
-            for p in conn.execute("SELECT id,ipo_price FROM players").fetchall():
-                conn.execute("INSERT INTO price_history (player_id,price,reason,ts) VALUES (?,?,'IPO',?)",
-                             (p["id"],p["ipo_price"],now))
-            conn.commit(); conn.close()
+            players_list = db.get_all_players()
+            for p in players_list:
+                sb.table("players").update({
+                    "live_price": p["ipo_price"], "prev_price": p["ipo_price"],
+                    "volume": 0, "last_rating": None, "last_update": now
+                }).eq("id", p["id"]).execute()
+            sb.table("price_history").delete().neq("id", 0).execute()
+            sb.table("match_events").delete().neq("id", 0).execute()
+            sb.table("trading_locks").delete().neq("team_code", "XXXXX").execute()
+            sb.table("matches").delete().neq("id", 0).execute()
             st.success("✅ Market reset to IPO prices")
             st.rerun()
