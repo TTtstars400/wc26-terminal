@@ -39,6 +39,7 @@ st.set_page_config(
 db.init_db()
 
 # ── Cron job trigger ──────────────────────────────────────────────────────────
+# — Cron job trigger
 try:
     _trigger = st.query_params.get("trigger", "")
     if _trigger == "update":
@@ -46,9 +47,9 @@ try:
             api.fetch_schedule()
             api.update_match_statuses()
             results = api.process_finished_matches()
-            st.text(f"OK {len(results)}")
+            st.markdown("OK")
         except Exception as _e:
-            st.text(f"ERROR {_e}")
+            st.markdown(f"ERROR: {_e}")
         st.stop()
 except Exception:
     pass
